@@ -12,15 +12,15 @@ This app is an interactive demo of the updated Search Term Details Page.
 
 # Search Term and Inputs
 st.sidebar.write("### Experience / Search Term Info")
-business_id = st.sidebar.text_input("Business ID", value=3470691)
-experience_key = st.sidebar.text_input("Experience Key", value="samsung-support-answers")
-api_key = st.sidebar.text_input("API Key", value="4303f1eee26f1c2df76282a4e1981980")
+business_id = st.sidebar.text_input("Business ID", value=st.secrets["sample_account"]["business_id"])
+experience_key = st.sidebar.text_input("Experience Key", value=st.secrets["sample_account"]["experience_key"])
+api_key = st.sidebar.text_input("API Key", value=st.secrets["sample_account"]["api_key"])
 search_term = st.sidebar.text_input("Search Term (Normalized)")
 days = st.sidebar.number_input("Last __ Days", min_value=0, value=30, step=1)
 
 st.sidebar.write("### Snowflake Info")
-acct = st.sidebar.text_input("Snowflake Account", value="tw61901.us-east-1")
-user = st.sidebar.text_input("Snowflake User", value="alyang@yext.com")
+acct = st.sidebar.text_input("Snowflake Account", value=st.secrets["snowflake"]["account"])
+user = st.sidebar.text_input("Snowflake User", value=st.secrets["snowflake"]["user"])
 
 
 def _flatten(values):
