@@ -199,6 +199,7 @@ if business_id and experience_key and api_key and search_term:
         date(searches.timestamp) > dateadd('day', -30, current_date())
         and user_data.traffic_source = 'EXTERNAL'
         and searches.version_label = 'PRODUCTION'
+        and search_term != '{search_term}'
     group by 1
     order by 2 desc
     limit 10
