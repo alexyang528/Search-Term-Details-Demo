@@ -1,4 +1,6 @@
 import streamlit as st
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from snowflake import connector
 from yext import YextClient
 
@@ -12,8 +14,12 @@ This app is an interactive demo of the updated Search Term Details Page.
 
 # Search Term and Inputs
 st.sidebar.write("### Experience / Search Term Info")
-business_id = st.sidebar.text_input("Business ID", value=st.secrets["sample_account"]["business_id"])
-experience_key = st.sidebar.text_input("Experience Key", value=st.secrets["sample_account"]["experience_key"])
+business_id = st.sidebar.text_input(
+    "Business ID", value=st.secrets["sample_account"]["business_id"]
+)
+experience_key = st.sidebar.text_input(
+    "Experience Key", value=st.secrets["sample_account"]["experience_key"]
+)
 api_key = st.sidebar.text_input("API Key", value=st.secrets["sample_account"]["api_key"])
 search_term = st.sidebar.text_input("Search Term (Normalized)")
 days = st.sidebar.number_input("Last __ Days", min_value=0, value=30, step=1)
@@ -91,19 +97,66 @@ if business_id and experience_key and api_key and search_term:
     st.write("## Search Term Analytics")
     st.write("Key metrics regarding search volume and engagement for this search term.")
 
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric(label="Searches", value=int(data["SEARCHES"].sum()))
-    c2.metric(label="Sessions", value=int(data["SESSIONS"].sum()))
-    c3.metric(label="Clicks", value=int(data["CLICKS"].sum()))
     try:
         ctr = int(data["SEARCHES_W_CLICKS"].sum()) / int(data["SEARCHES"].sum())
         ctr = round(ctr, 2)
     except ZeroDivisionError:
         ctr = 0
-    c4.metric(label="CTR", value=ctr)
 
     line_data = data.groupby("DATE").agg({"SEARCHES": sum, "SESSIONS": sum, "CLICKS": sum})
-    st.line_chart(line_data)
+
+    heros = go.Figure()
+    heros.add_trace(
+        go.Indicator(
+            value=int(data["SEARCHES"].sum()), title="Searches", domain={"row": 0, "column": 0}
+        )
+    )
+    heros.add_trace(
+        go.Indicator(
+            value=int(data["SESSIONS"].sum()), title="Sessions", domain={"row": 0, "column": 1}
+        )
+    )
+    heros.add_trace(
+        go.Indicator(
+            value=int(data["CLICKS"].sum()), title="Clicks", domain={"row": 0, "column": 2}
+        )
+    )
+    heros.add_trace(go.Indicator(value=ctr, title="CTR", domain={"row": 0, "column": 3}))
+    heros.update_layout(grid={"rows": 1, "columns": 4}, margin=dict(t=0, b=0, pad=0), height=200)
+
+    st.plotly_chart(heros, use_container_width=True)
+
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=line_data.index,
+            y=line_data["SEARCHES"],
+            name="Searches",
+            hoverinfo="name+y",
+            line_shape="spline",
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=line_data.index,
+            y=line_data["SESSIONS"],
+            name="Sessions",
+            hoverinfo="name+y",
+            line_shape="spline",
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=line_data.index,
+            y=line_data["CLICKS"],
+            name="Clicks",
+            hoverinfo="name+y",
+            line_shape="spline",
+        )
+    )
+    fig.update_layout(margin=dict(t=0, b=0, pad=0))
+
+    st.plotly_chart(fig, use_container_width=True)
 
     # Map
     st.write("## Search Map")
