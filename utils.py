@@ -66,7 +66,7 @@ select
     count(distinct searches.query_id) as searches,
     count(case when user_event_types.is_click_event then 1 end) as clicks,
     round(div0(count(distinct case when user_event_types.is_click_event then searches.query_id end), count(distinct searches.query_id)), 2) as ctr,
-    count(distinct case when searches.has_kg_results then searches.query_id end) as searches_w_kg
+    round(div0(count(distinct case when searches.has_kg_results then searches.query_id end), count(distinct searches.query_id)), 2) as kg_result_rate
 from
     searches
     join user_data on searches.id = user_data.search_id
@@ -89,7 +89,7 @@ select
     count(distinct searches.query_id) as searches,
     count(case when user_event_types.is_click_event then 1 end) as clicks,
     round(div0(count(distinct case when user_event_types.is_click_event then searches.query_id end), count(distinct searches.query_id)), 2) as ctr,
-    count(distinct case when searches.has_kg_results then searches.query_id end) as searches_w_kg
+    round(div0(count(distinct case when searches.has_kg_results then searches.query_id end), count(distinct searches.query_id)), 2) as kg_result_rate
 from
     searches
     join user_data on searches.id = user_data.search_id

@@ -220,7 +220,19 @@ heros.add_trace(
         domain={"row": 0, "column": 3},
     )
 )
-heros.update_layout(grid={"rows": 1, "columns": 4}, margin=dict(t=0, b=0, pad=0), height=200)
+try:
+    avg_kg_result = round(data["KG_RESULT_RATE"].dot(data["SEARCHES"]) / data["SEARCHES"].sum(), 2)
+except:
+    avg_ctr = 0
+heros.add_trace(
+    go.Indicator(
+        value=avg_kg_result,
+        title="KG Result Rate",
+        domain={"row": 0, "column": 4},
+    )
+)
+
+heros.update_layout(grid={"rows": 1, "columns": 5}, margin=dict(t=0, b=0, pad=0), height=200)
 analytics.plotly_chart(heros, use_container_width=True)
 
 line_data = data.groupby("DATE").agg({"SEARCHES": sum, "SESSIONS": sum, "CLICKS": sum})
@@ -256,8 +268,6 @@ line_graph.update_layout(margin=dict(t=0, b=0, pad=0))
 analytics.plotly_chart(line_graph, use_container_width=True)
 
 analytics.markdown("""---""")
-with analytics.expander("Snowflake Query", expanded=False):
-    st.code(PARAMS["analytics_query"][MODE].format(**filter), language="sql")
 
 active_tab = analytics.radio("", TABS, index=0, key="tabs")
 child = TABS.index(active_tab) + 1
@@ -271,18 +281,21 @@ analytics.markdown(
             flex-direction: unset
         }
         div[role=radiogroup] label {
-            border: 1px solid #999;
-            background: #EEE;
+            border-bottom: 1px solid #999;
+            background: #FFF !important;
             padding: 4px 12px;
             border-radius: 4px 4px 0 0;
             position: relative;
-            top: 1px;
+            top: 8px;
+            font-size: 18px;
+            font-weight: bold !important;
             }
         div[role=radiogroup] label:nth-child("""
     + str(child)
     + """) {
             background: #FFF !important;
-            border-bottom: 1px solid transparent;
+            border-bottom: 2px solid #1564F9;
+            font-weight: 900;
         }
         </style>
     """,
@@ -311,7 +324,10 @@ if active_tab == "Related Search Terms":
             analytics.write("No search terms in this cluster for the selected filters.")
 
     analytics.markdown("""---""")
-    with analytics.expander("Snowflake Query", expanded=False):
+    with analytics.expander("Snowflake Queries", expanded=False):
+        st.write("Analytics Overview:")
+        st.code(PARAMS["analytics_query"][MODE].format(**filter), language="sql")
+        st.write("Details Query:")
         st.code(PARAMS["cluster_query"][MODE].format(**filter), language="sql")
 
 # Most Popular Results Module
@@ -350,7 +366,10 @@ elif active_tab == "Most Popular Results":
         )
 
     analytics.markdown("""---""")
-    with analytics.expander("Snowflake Query", expanded=False):
+    with analytics.expander("Snowflake Queries", expanded=False):
+        st.write("Analytics Overview:")
+        st.code(PARAMS["analytics_query"][MODE].format(**filter), language="sql")
+        st.write("Details Query:")
         st.code(PARAMS["results_query"][MODE].format(**filter), language="sql")
 
 # Most Popular Vertical Module
@@ -370,7 +389,10 @@ elif active_tab == "Most Popular Verticals":
         )
 
     analytics.markdown("""---""")
-    with analytics.expander("Snowflake Query", expanded=False):
+    with analytics.expander("Snowflake Queries", expanded=False):
+        st.write("Analytics Overview:")
+        st.code(PARAMS["analytics_query"][MODE].format(**filter), language="sql")
+        st.write("Details Query:")
         st.code(PARAMS["vertical_query"][MODE].format(**filter), language="sql")
 
 # Integration Source Module
@@ -391,7 +413,10 @@ elif active_tab == "Integration Source":
         )
 
     analytics.markdown("""---""")
-    with analytics.expander("Snowflake Query", expanded=False):
+    with analytics.expander("Snowflake Queries", expanded=False):
+        st.write("Analytics Overview:")
+        st.code(PARAMS["analytics_query"][MODE].format(**filter), language="sql")
+        st.write("Details Query:")
         st.code(PARAMS["source_query"][MODE].format(**filter), language="sql")
 
 # Search Log Module
@@ -415,7 +440,10 @@ elif active_tab == "Search Logs":
         analytics.write(f"_No recent searches this {MODE.lower()} with the selected filters._")
 
     analytics.markdown("""---""")
-    with analytics.expander("Snowflake Query", expanded=False):
+    with analytics.expander("Snowflake Queries", expanded=False):
+        st.write("Analytics Overview:")
+        st.code(PARAMS["analytics_query"][MODE].format(**filter), language="sql")
+        st.write("Details Query:")
         st.code(PARAMS["logs_query"][MODE].format(**filter), language="sql")
 else:
     st.error("Something has gone terribly wrong.")
